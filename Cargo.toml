@@ -1,0 +1,19 @@
+[package]
+name = "name_app"
+version = "0.1.0"
+authors = ["Jacob Brown <j.h.brown@tcu.edu>"]
+
+[dependencies]
+rusqlite    = "*"
+r2d2        = "*"
+r2d2_sqlite = "*"
+glob        = "*"
+regex       = "*"
+csv         = "*"
+iron        = "*"
+persistent  = "*"
+router      = "*"
+mount       = "*"
+urlencoded  = "*"
+staticfile  = "*"
+rustc-serialize = "*"
