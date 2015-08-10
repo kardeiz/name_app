@@ -26,10 +26,33 @@
     </style>
   </head>
   <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <div>
+      <form>
+        <input type="text" name="names" id="names"/>
+        <select name="sex" id="sex">
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+        </select>
+        <button>Change</button>
+      </form>
+    </div>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <script>
 
-    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+      $(document).ready(function() {
+        $('#sex').val(getParameterByName('sex'));
+        $('#names').val(getParameterByName('names'));
+      });
+
+      function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+          results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+
+    var margin = {top: 20, right: 80, bottom: 30, left: 50},
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
@@ -52,11 +75,10 @@
       .orient("left");
 
     var line = d3.svg.line()
+      .interpolate("basis")
       .x(function(d) { return x(d.year); })
       .y(function(d) { return y(d.number); });
 
-    var stack = d3.layout.stack()
-      .values(function(d) { return d.values; });
 
     var svg = d3.select("body").append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -64,12 +86,16 @@
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var area = d3.svg.area()
-      .x(function(d) { return x(d.year); })
-      .y0(function(d) { return y(d.y0); })
-      .y1(function(d) { return y(d.y0 + d.y); });
+    var names = getParameterByName("names").split("|");
+    var namesArr = [];
+    for (i = 0; i < names.length; i++) { 
+      namesArr.push("name[]=" + names[i]);
+    }
 
-    d3.json("/data?name[]=Jacob&name[]=Felix&name[]=Chris&sex=M", function(error, data) {
+    var sex = getParameterByName("sex");
+    sex = (sex == "") ? "M" : sex;
+
+    d3.json("/data?" + namesArr.join("&") + "&sex=" + sex, function(error, data) {
       if (error) throw error;
 
       data.forEach(function(d) {
@@ -79,8 +105,10 @@
       console.log(data);
 
       var ng = d3.nest()
-        .key(function(d) { return d['name']; })
+        .key(function(d) { return d.name; })
         .entries(data);
+
+      // console.log(ng);
 
       color.domain(ng.map(function(d) { return d.key }));
 
@@ -95,19 +123,14 @@
       name.append("path")
         .attr("class", "line")
         .attr("d", function(d) { return line(d.values); })
-        .style("stroke", function(d) { return color(d.name); });
+        .style("stroke", function(d) { return color(d.key); });
 
-      // name.append("path")
-      //   .attr("class", "area")
-      //   .attr("d", function(d) { return area(d.values); })
-      //   .style("fill", function(d) { return color(d.name); });
-
-      // name.append("text")
-      //   .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-      //   .attr("transform", function(d) { return "translate(" + x(d.value.year) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
-      //   .attr("x", -6)
-      //   .attr("dy", ".35em")
-      //   .text(function(d) { return d.name; });
+      name.append("text")
+        .datum(function(d) { return { name: d.key, value: d.values[d.values.length - 1]}; })
+        .attr("transform", function(d) { return "translate(" + x(d.value.year) + "," + y(d.value.number) + ")"; })
+        .attr("x", 3)
+        .attr("dy", ".35em")
+        .text(function(d) { return d.name; });
 
       svg.append("g")
         .attr("class", "x axis")

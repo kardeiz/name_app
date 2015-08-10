@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Jacob Brown <j.h.brown@tcu.edu>"]
 
 [dependencies]
+docopt      = "0.6.*"
 rusqlite    = "*"
 r2d2        = "*"
 r2d2_sqlite = "*"

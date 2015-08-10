@@ -3,6 +3,7 @@ name = "name_app"
 version = "0.1.0"
 dependencies = [
  "csv 0.14.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "docopt 0.6.70 (registry+https://github.com/rust-lang/crates.io-index)",
  "glob 0.2.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "iron 0.1.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "mount 0.0.7 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -92,6 +93,16 @@ dependencies = [
 name = "debug-builders"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "docopt"
+version = "0.6.70"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "regex 0.1.41 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-serialize 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "strsim 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "error"
@@ -411,6 +422,11 @@ dependencies = [
  "router 0.0.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "time 0.1.32 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "strsim"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "tempdir"

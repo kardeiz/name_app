@@ -1,3 +1,5 @@
+extern crate docopt;
+
 extern crate rusqlite;
 extern crate r2d2;
 extern crate r2d2_sqlite;
@@ -13,11 +15,13 @@ extern crate router;
 extern crate urlencoded;
 extern crate staticfile;
 extern crate mount;
-// use std::vec::Vec;
+
 use std::env;
 use glob::glob;
 use std::path::{Path, PathBuf};
 use regex::Regex;
+
+use docopt::Docopt;
 
 #[derive(RustcDecodable, RustcEncodable, Debug)]
 pub struct Name {
@@ -85,6 +89,8 @@ pub mod db {
 
     for txt in txts {
       let pn = txt.as_path().to_str().unwrap();
+      println!("{:?}", pn);
+
       let year = rey.captures(pn).and_then(|caps| caps.at(0) ).unwrap();
 
       let mut rdr = csv::Reader::from_file(txt.as_path()).unwrap();      
@@ -222,85 +228,36 @@ pub mod web {
 
 
 fn db_test() { }
-//   let pool = setup_connection_pool();
-//   let conn = pool.get().unwrap();
-  
-//   // let a = ;
-//   let ents = vec!["a".to_string(), "b".to_string()];
-//   let bbbb = ents.iter().map(|s| s as &ToSql ).collect::<Vec<&ToSql>>();
-//   let bnts = &bbbb[..];
 
-//   // let bbbb = &ents[..];
-//   // let bnts = bbbb as &[&ToSql];
+static USAGE: &'static str = "
+Usage:
+  name_app <task>
+";
 
-
-//   // let x: Vec<&str> = ents.iter().map(|&s| s ).collect();
-
-//   // let bnts: Vec<&ToSql> = ents.iter().map(|&s| s as &ToSql ).collect();
-//   // let x: &[&ToSql] = &ents[..];
-
-//   // println!("{:?}", ents == x);
-
-
-//   // let x = "a".to_string();
-
-//   // let y = x as &ToSql;
-
-//   // y.to();
-
-//   //ents.to_i();
-
-//   // let xx = &[&"jacob"];
-
-//   // xx.null();
-
-//   let place_holder = {
-//     let mut first = true;
-//     (1..(ents.len() + 1)).fold(String::new(), |acc, item| 
-//       if first { 
-//         first = false;
-//         acc + "$" + &item.to_string()[..]
-//       } else {
-//         acc + ", $" + &item.to_string()[..]
-//       }
-//     )
-//   };
-  
-//   let stms = format!("SELECT name, sex, year, number \
-//     FROM names where name IN ({}) COLLATE NOCASE", place_holder);
-
-//   let mut stmt = conn.prepare(&stms[..]).unwrap();
-//   // let rows = stmt.query(&[ &ents[0], &ents[1] ]).unwrap();
-//   //let rows = stmt.query(&[&"jacob"]).unwrap();
-//   // let xa = ents.iter().collect::<Vec<&&str>>();
-//   // xa.to();
-//   // let xx = xa.into_boxed_slice();
-//   // let xy = *xx;
-//   // let xy = *xx;
-//   let rows = stmt.query(bnts).unwrap();
-
-
-//   let mut names = Vec::new();
-//   for _row in rows {
-//     let row =  _row.unwrap();
-//     let name = Name { 
-//       name: row.get(0),
-//       sex: row.get(1),
-//       year: row.get(2),
-//       number: row.get(3)
-//     };
-//     names.push(name);
-//   }
-//   println!("{:?}", names);
-// }
+#[derive(Debug, RustcDecodable)]
+struct Args {
+ arg_task: String
+}
 
 
 fn main() {
-  match env::var("TASK") {
-    Ok(ref val) if val == "BUILD" => db::build_table(),
-    Ok(ref val) if val == "LOAD"  => db::load_data(),
-    Ok(ref val) if val == "RUN"   => web::run(),
-    Ok(ref val) if val == "TEST"   => db_test(),
-    _ => { println!("Error"); }
+
+  let args: Args = Docopt::new(USAGE)
+    .and_then(|d| d.decode())
+    .unwrap_or_else(|e| e.exit());
+
+  println!("{:?}", args);
+
+  match args.arg_task.as_ref() {
+    "run" => web::run(),
+    _ => panic!("no")
   }
+
+  // match env::var("TASK") {
+  //   Ok(ref val) if val == "BUILD" => db::build_table(),
+  //   Ok(ref val) if val == "LOAD"  => db::load_data(),
+  //   Ok(ref val) if val == "RUN"   => web::run(),
+  //   Ok(ref val) if val == "TEST"   => db_test(),
+  //   _ => { println!("Error"); }
+  // }
 }
